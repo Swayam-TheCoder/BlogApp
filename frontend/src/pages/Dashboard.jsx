@@ -23,12 +23,12 @@ function Dashboard() {
   return (
     <>
       <Navbar />
-      <div className="p-6">
-        <div className="flex justify-between mb-4">
-          <h2 className="text-2xl text-green-400">My Blogs</h2>
+      <div className="p-6 max-w-5xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl text-green-400 font-semibold">My Blogs</h2>
           <Link
             to="/create"
-            className="bg-green-500 px-4 py-2 rounded"
+            className="bg-green-500 px-4 py-2 rounded hover:bg-green-600"
           >
             + New Blog
           </Link>
@@ -40,14 +40,14 @@ function Dashboard() {
           blogs.map((blog) => (
             <div
               key={blog._id}
-              className="bg-[#1e293b] p-4 mb-3 rounded"
+              className="bg-[#1e293b] p-4 rounded-xl flex justify-between items-center"
             >
               <h3 className="text-lg">{blog.title}</h3>
 
               <div className="mt-2 space-x-3">
                 <button
                   onClick={() => deleteBlog(blog._id)}
-                  className="text-red-400"
+                  className="text-red-400 hover:text-red-500"
                 >
                   Delete
                 </button>

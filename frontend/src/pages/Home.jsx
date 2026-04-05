@@ -11,19 +11,19 @@ function Home() {
 
   // 🔄 Fetch blogs
   const fetchBlogs = async () => {
-  const { data } = await API.get(
-    `/blogs?search=${search}&sort=${sort}&page=${page}`
-  );
-  setBlogs(data.blogs);
-};
+    const { data } = await API.get(
+      `/blogs?search=${search}&sort=${sort}&page=${page}`,
+    );
+    setBlogs(data.blogs);
+  };
 
   useEffect(() => {
-  const delay = setTimeout(() => {
-    fetchBlogs();
-  }, 500);
+    const delay = setTimeout(() => {
+      fetchBlogs();
+    }, 500);
 
-  return () => clearTimeout(delay);
-}, [search, sort, page]);
+    return () => clearTimeout(delay);
+  }, [search, sort, page]);
 
   // ❤️ LIKE FUNCTION (CORRECT WAY)
   const likeBlog = async (id) => {
@@ -35,45 +35,58 @@ function Home() {
     <>
       <Navbar />
 
-      <div className="p-6 grid gap-4">
-        <div className="flex gap-4 mb-6">
+      <div className="p-6 max-w-6xl mx-auto">
+        {/* SEARCH + FILTER */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           <input
             placeholder="Search blogs..."
-            className="p-2 bg-[#1e293b] w-full"
+            className="p-3 rounded-lg bg-[#1e293b] w-full focus:outline-none focus:ring-2 focus:ring-green-500"
             onChange={(e) => setSearch(e.target.value)}
           />
 
           <select
-            className="p-2 bg-[#1e293b]"
+            className="p-3 rounded-lg bg-[#1e293b] focus:outline-none"
             onChange={(e) => setSort(e.target.value)}
           >
             <option value="latest">Latest</option>
             <option value="oldest">Oldest</option>
           </select>
         </div>
-        {blogs.map((blog) => (
-          <div key={blog._id} className="p-4 bg-[#1e293b] rounded-xl">
-            <h2 className="text-xl font-bold text-green-400">
-              {blog.title}
-            </h2>
 
-            <p>{blog.content.slice(0, 100)}...</p>
-
-            {/* ❤️ LIKE BUTTON */}
-            <button
-              onClick={() => likeBlog(blog._id)}
-              className="text-red-400 mt-2"
+        {/* BLOG CARDS */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {blogs.map((blog) => (
+            <div
+              key={blog._id}
+              className="bg-[#1e293b] p-5 rounded-2xl shadow-lg hover:scale-[1.02] transition"
             >
-              ❤️ {blog.likes?.length || 0}
-            </button>
+              <h2 className="text-xl font-semibold text-green-400 mb-2">
+                {blog.title}
+              </h2>
 
-            <br />
+              <p className="text-gray-300 text-sm mb-3">
+                {blog.content.slice(0, 120)}...
+              </p>
 
-            <Link to={`/blog/${blog._id}`} className="text-green-500">
-              Read More →
-            </Link>
-          </div>
-        ))}
+              {/* ACTIONS */}
+              <div className="flex justify-between items-center mt-3">
+                <button
+                  onClick={() => likeBlog(blog._id)}
+                  className="flex items-center gap-1 text-red-400 hover:scale-110 transition"
+                >
+                  ❤️ {blog.likes?.length || 0}
+                </button>
+
+                <Link
+                  to={`/blog/${blog._id}`}
+                  className="text-green-400 text-sm hover:underline"
+                >
+                  Read More →
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );

@@ -5,11 +5,14 @@ exports.createBlog = async (req, res) => {
   try {
     const { title, content } = req.body;
 
+    console.log(req.body);
+    console.log(req.file);
+    console.log(req.user);
     const blog = await Blog.create({
       title,
       content,
       author: req.user._id,
-      image: req.file?.path,
+      image: req.file ? req.file.path : "",
     });
 
     res.status(201).json(blog);
@@ -81,7 +84,6 @@ exports.deleteBlog = async (req, res) => {
   }
 };
 
-
 exports.toggleLike = async (req, res) => {
   const blog = await Blog.findById(req.params.id);
 
@@ -92,24 +94,23 @@ exports.toggleLike = async (req, res) => {
   } else {
     blog.likes.push(req.user._id);
   }
-  
+
   if (!alreadyLiked) {
-  // create notification only when liking
-  if (blog.author.toString() !== req.user._id.toString()) {
-    await Notification.create({
-      user: blog.author,
-      sender: req.user._id,
-      blog: blog._id,
-      type: "like",
-      message: `${req.user.name} liked your blog`,
-    });
+    // create notification only when liking
+    if (blog.author.toString() !== req.user._id.toString()) {
+      await Notification.create({
+        user: blog.author,
+        sender: req.user._id,
+        blog: blog._id,
+        type: "like",
+        message: `${req.user.name} liked your blog`,
+      });
+    }
   }
-}
 
   await blog.save();
   res.json(blog);
 };
-
 
 exports.getBlogs = async (req, res) => {
   try {
@@ -135,8 +136,7 @@ exports.getBlogs = async (req, res) => {
     const authorFilter = author ? { author } : {};
 
     // 📅 Sorting
-    const sortOption =
-      sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+    const sortOption = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
     const blogs = await Blog.find({
       ...keyword,

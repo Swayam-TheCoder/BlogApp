@@ -25,41 +25,43 @@ function BlogDetails() {
   };
 
   const likeBlog = async (id) => {
-  await API.put(`/blogs/like/${id}`);
+    await API.put(`/blogs/like/${id}`);
 
-  // refresh blogs
-  const res = await API.get("/blogs");
-  setBlog(res.data);
-};
+    // refresh blogs
+    const res = await API.get("/blogs");
+    const found = res.data.find((b) => b._id === id);
+    setBlog(found);
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl text-green-400">{blog.title}</h1>
-      <p className="mt-4">{blog.content}</p>
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-4xl font-bold text-green-400 mb-4">{blog.title}</h1>
+      <p className="text-gray-300 leading-relaxed">{blog.content}</p>
 
-      <h2 className="mt-6 text-xl">Comments</h2>
-      <button onClick={() => likeBlog(blog._id)} className="text-red-400 mt-2">
+      <button onClick={() => likeBlog(blog._id)} className="text-red-400 mt-4">
         ❤️ {blog.likes?.length || 0}
       </button>
 
-      <div>
+      <h2 className="mt-8 text-xl">Comments</h2>
+      <div className="space-y-3 mt-3">
         {comments.map((c) => (
-          <p key={c._id} className="bg-[#1e293b] p-2 my-2 rounded">
+          <p key={c._id} className="bg-[#1e293b] p-3 rounded-lg">
             {c.text}
           </p>
         ))}
       </div>
+      <div className="mt-4 flex gap-2">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="flex-1 p-2 rounded bg-[#020617]"
+          placeholder="Write comment..."
+        />
 
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className="mt-3 p-2 w-full bg-black"
-        placeholder="Write comment..."
-      />
-
-      <button onClick={addComment} className="bg-green-500 px-4 py-2 mt-2">
-        Add Comment
-      </button>
+        <button onClick={addComment} className="bg-green-500 px-4 rounded">
+          Post
+        </button>
+      </div>
     </div>
   );
 }

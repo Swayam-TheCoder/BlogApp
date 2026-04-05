@@ -16,7 +16,6 @@ const protect = require("../middleware/authMiddleware");
 router.get("/", getBlogs);
 
 // Private
-router.post("/", protect, createBlog);
 router.get("/my", protect, getMyBlogs);
 router.put("/:id", protect, updateBlog);
 router.delete("/:id", protect, deleteBlog);

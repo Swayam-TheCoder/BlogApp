@@ -17,23 +17,23 @@ function Login() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-[#1e293b] p-6 rounded-xl">
-        <h2 className="text-2xl mb-4 text-green-500">Login</h2>
+      <form onSubmit={handleSubmit} className="bg-[#1e293b] p-8 rounded-2xl w-96 shadow-xl">
+        <h2 className="text-3xl mb-6 text-green-400 font-semibold text-center">Login</h2>
 
         <input
-          className="block mb-3 p-2 w-full bg-black"
+          className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
           placeholder="Email"
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
         <input
           type="password"
-          className="block mb-3 p-2 w-full bg-black"
+          className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
           placeholder="Password"
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
-        <button className="bg-green-500 px-4 py-2 w-full">
+        <button className="bg-green-500 w-full py-3 rounded-lg hover:bg-green-600 transition">
           Login
         </button>
       </form>
