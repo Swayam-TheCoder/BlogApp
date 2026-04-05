@@ -4,11 +4,17 @@ import { useNavigate } from "react-router-dom";
 
 function CreateBlog() {
   const [form, setForm] = useState({ title: "", content: "" });
+  const [file, setFile] = useState(null);
   const navigate = useNavigate();
+
+  const formData = new FormData();
+  formData.append("title", form.title);
+  formData.append("content", form.content);
+  formData.append("image", file);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await API.post("/blogs", form);
+    await API.post("/blogs", formData);
     navigate("/");
   };
 
@@ -26,10 +32,9 @@ function CreateBlog() {
           className="block mb-3 p-2 w-full bg-[#1e293b]"
           onChange={(e) => setForm({ ...form, content: e.target.value })}
         />
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
 
-        <button className="bg-green-500 px-4 py-2">
-          Publish
-        </button>
+        <button className="bg-green-500 px-4 py-2">Publish</button>
       </form>
     </div>
   );

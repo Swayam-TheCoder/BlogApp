@@ -1,15 +1,33 @@
 const Comment = require("../models/Comment");
+const Blog = require("../models/Blog"); 
 
 // ADD COMMENT
 exports.addComment = async (req, res) => {
   try {
     const { text } = req.body;
 
+    const blog = await Blog.findById(req.params.blogId);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
     const comment = await Comment.create({
       text,
-      blog: req.params.blogId,
+      blog: blog._id,
       user: req.user._id,
     });
+
+    // 🔔 Create Notification (only if not self)
+    if (blog.author.toString() !== req.user._id.toString()) {
+      await Notification.create({
+        user: blog.author,        // receiver
+        sender: req.user._id,     // who commented
+        blog: blog._id,
+        type: "comment",
+        message: `${req.user.name} commented on your blog`,
+      });
+    }
 
     res.status(201).json(comment);
   } catch (error) {

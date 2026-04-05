@@ -9,6 +9,7 @@ exports.createBlog = async (req, res) => {
       title,
       content,
       author: req.user._id,
+      image: req.file?.path,
     });
 
     res.status(201).json(blog);
@@ -75,6 +76,75 @@ exports.deleteBlog = async (req, res) => {
 
     await blog.deleteOne();
     res.json({ message: "Blog deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+exports.toggleLike = async (req, res) => {
+  const blog = await Blog.findById(req.params.id);
+
+  const alreadyLiked = blog.likes.includes(req.user._id);
+
+  if (alreadyLiked) {
+    blog.likes.pull(req.user._id);
+  } else {
+    blog.likes.push(req.user._id);
+  }
+  
+
+  await blog.save();
+  res.json(blog);
+};
+
+
+exports.getBlogs = async (req, res) => {
+  try {
+    const {
+      search = "",
+      author,
+      sort = "latest",
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    // 🔍 Search (title + content)
+    const keyword = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { content: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // 🧑 Filter by author
+    const authorFilter = author ? { author } : {};
+
+    // 📅 Sorting
+    const sortOption =
+      sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
+    const blogs = await Blog.find({
+      ...keyword,
+      ...authorFilter,
+    })
+      .populate("author", "name")
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(Number(limit));
+
+    const total = await Blog.countDocuments({
+      ...keyword,
+      ...authorFilter,
+    });
+
+    res.json({
+      blogs,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

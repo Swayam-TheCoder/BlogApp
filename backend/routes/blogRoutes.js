@@ -1,4 +1,5 @@
 const express = require("express");
+const upload = require("../middleware/upload");
 const router = express.Router();
 const {
   createBlog,
@@ -6,6 +7,7 @@ const {
   getMyBlogs,
   updateBlog,
   deleteBlog,
+  toggleLike,
 } = require("../controllers/blogController");
 
 const protect = require("../middleware/authMiddleware");
@@ -18,5 +20,7 @@ router.post("/", protect, createBlog);
 router.get("/my", protect, getMyBlogs);
 router.put("/:id", protect, updateBlog);
 router.delete("/:id", protect, deleteBlog);
+router.post("/", protect, upload.single("image"), createBlog);
+router.put("/like/:id", protect, toggleLike);
 
 module.exports = router;

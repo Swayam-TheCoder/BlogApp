@@ -24,12 +24,23 @@ function BlogDetails() {
     setText("");
   };
 
+  const likeBlog = async (id) => {
+  await API.put(`/blogs/like/${id}`);
+
+  // refresh blogs
+  const res = await API.get("/blogs");
+  setBlog(res.data);
+};
+
   return (
     <div className="p-6">
       <h1 className="text-3xl text-green-400">{blog.title}</h1>
       <p className="mt-4">{blog.content}</p>
 
       <h2 className="mt-6 text-xl">Comments</h2>
+      <button onClick={() => likeBlog(blog._id)} className="text-red-400 mt-2">
+        ❤️ {blog.likes?.length || 0}
+      </button>
 
       <div>
         {comments.map((c) => (

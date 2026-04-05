@@ -15,8 +15,19 @@ const blogSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    image: {
+      type: String,
+    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+blogSchema.index({ title: "text", content: "text" });
 
 module.exports = mongoose.model("Blog", blogSchema);
