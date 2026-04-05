@@ -1,6 +1,6 @@
 const Comment = require("../models/Comment");
 const Blog = require("../models/Blog"); 
-
+const Notification = require("../models/notification");
 // ADD COMMENT
 exports.addComment = async (req, res) => {
   try {

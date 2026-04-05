@@ -23,6 +23,7 @@ function Navbar() {
           <>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
+            <Link to="/notifications">🔔</Link>
           </>
         )}
       </div>

@@ -1,5 +1,5 @@
 const Blog = require("../models/Blog");
-
+const Notification = require("../models/notification");
 // CREATE BLOG
 exports.createBlog = async (req, res) => {
   try {
@@ -93,6 +93,18 @@ exports.toggleLike = async (req, res) => {
     blog.likes.push(req.user._id);
   }
   
+  if (!alreadyLiked) {
+  // create notification only when liking
+  if (blog.author.toString() !== req.user._id.toString()) {
+    await Notification.create({
+      user: blog.author,
+      sender: req.user._id,
+      blog: blog._id,
+      type: "like",
+      message: `${req.user.name} liked your blog`,
+    });
+  }
+}
 
   await blog.save();
   res.json(blog);
