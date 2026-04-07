@@ -9,9 +9,8 @@ function BlogDetails() {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    API.get("/blogs").then((res) => {
-      const found = res.data.find((b) => b._id === id);
-      setBlog(found);
+    API.get(`/blogs/${id}`).then((res) => {
+      setBlog(res.data);
     });
 
     API.get(`/comments/${id}`).then((res) => setComments(res.data));
@@ -28,9 +27,8 @@ function BlogDetails() {
     await API.put(`/blogs/like/${id}`);
 
     // refresh blogs
-    const res = await API.get("/blogs");
-    const found = res.data.find((b) => b._id === id);
-    setBlog(found);
+    const res = await API.get(`/blogs/${id}`);
+    setBlog(res.data);
   };
 
   return (

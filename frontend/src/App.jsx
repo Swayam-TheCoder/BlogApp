@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import CreateBlog from "./pages/CreateBlog";
 import BlogDetails from "./pages/BlogDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
+import EditBlog from "./pages/EditBlog";  
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
             }
           />
           <Route path="/blog/:id" element={<BlogDetails />} />
+          <Route path="/edit/:id" element={<EditBlog />} />
         </Routes>
       </div>
     </BrowserRouter>

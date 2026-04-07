@@ -6,30 +6,41 @@ exports.addComment = async (req, res) => {
   try {
     const { text } = req.body;
 
-    const blog = await Blog.findById(req.params.blogId);
+    if (!text || !text.trim()) {
+      return res.status(400).json({ message: "Comment is required" });
+    }
+
+    // ⚡ Only fetch required fields (faster)
+    const blog = await Blog.findById(req.params.blogId).select("author");
 
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
 
+    // ⚡ Create comment
     const comment = await Comment.create({
-      text,
-      blog: blog._id,
+      text: text.trim(),
+      blog: req.params.blogId,
       user: req.user._id,
     });
 
-    // 🔔 Create Notification (only if not self)
+    // ⚡ Populate user (so frontend gets name instantly)
+    const populatedComment = await comment.populate("user", "name");
+
+    // ⚡ Send response immediately (DON'T WAIT for notification)
+    res.status(201).json(populatedComment);
+
+    // 🔔 Create notification in background (non-blocking)
     if (blog.author.toString() !== req.user._id.toString()) {
-      await Notification.create({
-        user: blog.author,        // receiver
-        sender: req.user._id,     // who commented
-        blog: blog._id,
+      Notification.create({
+        user: blog.author,
+        sender: req.user._id,
+        blog: req.params.blogId,
         type: "comment",
         message: `${req.user.name} commented on your blog`,
-      });
+      }).catch((err) => console.error("Notification error:", err));
     }
 
-    res.status(201).json(comment);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

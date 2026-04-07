@@ -51,6 +51,12 @@ function Dashboard() {
                 >
                   Delete
                 </button>
+                <Link
+                  to={`/edit/${blog._id}`}
+                  className="text-green-400 hover:underline"
+                >
+                  Edit
+                </Link>
               </div>
             </div>
           ))

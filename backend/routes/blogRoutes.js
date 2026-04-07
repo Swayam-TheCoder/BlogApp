@@ -8,6 +8,7 @@ const {
   updateBlog,
   deleteBlog,
   toggleLike,
+  getSingleBlog,
 } = require("../controllers/blogController");
 
 const protect = require("../middleware/authMiddleware");
@@ -17,9 +18,10 @@ router.get("/", getBlogs);
 
 // Private
 router.get("/my", protect, getMyBlogs);
-router.put("/:id", protect, updateBlog);
 router.delete("/:id", protect, deleteBlog);
 router.post("/", protect, upload.single("image"), createBlog);
 router.put("/like/:id", protect, toggleLike);
+router.put("/:id", protect, updateBlog);
+router.get("/:id", getSingleBlog);
 
 module.exports = router;

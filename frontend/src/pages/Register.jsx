@@ -1,7 +1,8 @@
 import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import Input from "../components/Input";
 
 function Register() {
   const [form, setForm] = useState({
@@ -10,49 +11,86 @@ function Register() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data } = await API.post("/auth/register", form);
-    login(data);
-    navigate("/");
+    setLoading(true);
+    setError("");
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data } = await API.post("/auth/register", form);
+      login(data);
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.message || "Signup failed");
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form className="bg-[#1e293b] p-6 rounded-xl" onSubmit={handleSubmit}>
-        <h2 className="text-2xl mb-4 text-green-500">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#1e293b] p-8 rounded-2xl w-full max-w-md shadow-lg"
+      >
+        <h2 className="text-3xl font-bold text-green-500 mb-6 text-center">
+          Create Account 
+        </h2>
 
-        <input
-          placeholder="Name"
-          className="block mb-3 p-2 w-full bg-black"
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+        {error && (
+          <p className="text-red-400 mb-3 text-sm">{error}</p>
+        )}
 
-        <input
-          placeholder="Email"
-          className="block mb-3 p-2 w-full bg-black"
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-        />
+        <div className="space-y-4">
+          <Input
+            placeholder="Name"
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="block mb-3 p-2 w-full bg-black"
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
+          <Input
+            placeholder="Email"
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
 
-        <button className="bg-green-500 px-4 py-2 w-full">
-          Register
+          <Input
+            type="password"
+            placeholder="Password"
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
+        </div>
+
+        <button
+          disabled={loading}
+          className="w-full mt-6 bg-green-500 hover:bg-green-600 
+          transition p-3 rounded-lg font-semibold"
+        >
+          {loading ? "Creating..." : "Register"}
         </button>
+
+        <p className="text-sm mt-4 text-center text-gray-400">
+          Already have an account?{" "}
+          <Link to="/login" className="text-green-400">
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );

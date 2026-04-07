@@ -1,41 +1,78 @@
 import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import Input from "../components/Input";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data } = await API.post("/auth/login", form);
-    login(data);
-    navigate("/");
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data } = await API.post("/auth/login", form);
+      login(data);
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
+
+    setLoading(false);
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-[#1e293b] p-8 rounded-2xl w-96 shadow-xl">
-        <h2 className="text-3xl mb-6 text-green-400 font-semibold text-center">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#1e293b] p-8 rounded-2xl w-full max-w-md shadow-lg"
+      >
+        <h2 className="text-3xl font-bold text-green-500 mb-6 text-center">
+          Welcome Back 
+        </h2>
 
-        <input
-          className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="Email"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
+        {error && (
+          <p className="text-red-400 mb-3 text-sm">{error}</p>
+        )}
 
-        <input
-          type="password"
-          className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="Password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
+        <div className="space-y-4">
+          <Input
+            placeholder="Email"
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
 
-        <button className="bg-green-500 w-full py-3 rounded-lg hover:bg-green-600 transition">
-          Login
+          <Input
+            type="password"
+            placeholder="Password"
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
+        </div>
+
+        <button
+          disabled={loading}
+          className="w-full mt-6 bg-green-500 hover:bg-green-600 
+          transition p-3 rounded-lg font-semibold"
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
+
+        <p className="text-sm mt-4 text-center text-gray-400">
+          Don’t have an account?{" "}
+          <Link to="/register" className="text-green-400">
+            Register
+          </Link>
+        </p>
       </form>
     </div>
   );
