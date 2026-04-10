@@ -13,7 +13,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, []); 
 
   const deleteBlog = async (id) => {
     await API.delete(`/blogs/${id}`);

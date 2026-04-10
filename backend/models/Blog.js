@@ -29,5 +29,7 @@ const blogSchema = new mongoose.Schema(
 );
 
 blogSchema.index({ title: "text", content: "text" });
+blogSchema.index({ createdAt: -1 });
+blogSchema.index({ author: 1 });
 
 module.exports = mongoose.model("Blog", blogSchema);

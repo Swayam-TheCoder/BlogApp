@@ -85,31 +85,48 @@ exports.deleteBlog = async (req, res) => {
 };
 
 exports.toggleLike = async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
+  try {
+    const blogId = req.params.id;
+    const userId = req.user._id;
 
-  const alreadyLiked = blog.likes.includes(req.user._id);
+    // ⚡ Only fetch needed fields
+    const blog = await Blog.findById(blogId).select("likes author");
 
-  if (alreadyLiked) {
-    blog.likes.pull(req.user._id);
-  } else {
-    blog.likes.push(req.user._id);
-  }
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
 
-  if (!alreadyLiked) {
-    // create notification only when liking
-    if (blog.author.toString() !== req.user._id.toString()) {
-      await Notification.create({
+    const alreadyLiked = blog.likes.some(
+      (id) => id.toString() === userId.toString()
+    );
+
+    // ⚡ Use atomic update (FASTER)
+    const update = alreadyLiked
+      ? { $pull: { likes: userId } }
+      : { $addToSet: { likes: userId } };
+
+    const updatedBlog = await Blog.findByIdAndUpdate(blogId, update, {
+      new: true,
+      select: "likes",
+    }).lean();
+
+    // ⚡ Send response immediately
+    res.json(updatedBlog);
+
+    // 🔔 Background notification (non-blocking)
+    if (!alreadyLiked && blog.author.toString() !== userId.toString()) {
+      Notification.create({
         user: blog.author,
-        sender: req.user._id,
-        blog: blog._id,
+        sender: userId,
+        blog: blogId,
         type: "like",
         message: `${req.user.name} liked your blog`,
-      });
+        content: blog.content.slice(0, 150),
+      }).catch(() => {});
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  await blog.save();
-  res.json(blog);
 };
 
 exports.getBlogs = async (req, res) => {
@@ -122,31 +139,30 @@ exports.getBlogs = async (req, res) => {
       limit = 10,
     } = req.query;
 
-    // 🔍 Search (title + content)
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+
+    // ⚡ Use TEXT SEARCH instead of regex
     const keyword = search
-      ? {
-          $or: [
-            { title: { $regex: search, $options: "i" } },
-            { content: { $regex: search, $options: "i" } },
-          ],
-        }
+      ? { $text: { $search: search } }
       : {};
 
-    // 🧑 Filter by author
     const authorFilter = author ? { author } : {};
 
-    // 📅 Sorting
-    const sortOption = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+    const sortOption =
+      sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
     const blogs = await Blog.find({
       ...keyword,
       ...authorFilter,
     })
-      .populate("author", "name")
+      .select("title content image likes author createdAt") // ⚡ reduce payload
       .sort(sortOption)
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+      .lean(); // ⚡ HUGE speed boost
 
+    // ⚡ Count separately (optimized)
     const total = await Blog.countDocuments({
       ...keyword,
       ...authorFilter,
@@ -154,8 +170,8 @@ exports.getBlogs = async (req, res) => {
 
     res.json({
       blogs,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
+      page: pageNum,
+      pages: Math.ceil(total / limitNum),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
