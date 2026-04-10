@@ -12,7 +12,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-frontend-domain.com" // add your deployed frontend later
+  "https://blog-app-liard-six-60.vercel.app/" // add your deployed frontend later
 ];
 
 app.use(cors({
