@@ -40,26 +40,55 @@ function BlogDetails() {
         ❤️ {blog.likes?.length || 0}
       </button>
 
-      <h2 className="mt-8 text-xl">Comments</h2>
-      <div className="space-y-3 mt-3">
-        {comments.map((c) => (
-          <p key={c._id} className="bg-[#1e293b] p-3 rounded-lg">
-            {c.text}
-          </p>
-        ))}
-      </div>
-      <div className="mt-4 flex gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="flex-1 p-2 rounded bg-[#020617]"
-          placeholder="Write comment..."
-        />
+      {/* COMMENTS SECTION */}
+<h2 className="mt-10 text-2xl font-semibold text-green-400">
+  Comments ({comments.length})
+</h2>
 
-        <button onClick={addComment} className="bg-green-500 px-4 rounded">
-          Post
-        </button>
+<div className="space-y-4 mt-5">
+  {comments.map((c) => (
+    <div
+      key={c._id}
+      className="bg-[#1e293b] p-4 rounded-xl flex gap-3 hover:bg-[#273549] transition"
+    >
+      {/* Avatar */}
+      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-black font-bold">
+        {c.user?.email?.charAt(0).toUpperCase() || "U"}
       </div>
+
+      {/* Content */}
+      <div className="flex-1">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-white">
+            {c.user?.email || "Anonymous"}
+          </p>
+
+          <span className="text-xs text-gray-400">
+            {new Date(c.createdAt).toLocaleString()}
+          </span>
+        </div>
+
+        <p className="text-gray-300 mt-1">{c.text}</p>
+      </div>
+    </div>
+  ))}
+</div>
+      {/* ADD COMMENT */}
+<div className="mt-6 flex items-center gap-3">
+  <input
+    value={text}
+    onChange={(e) => setText(e.target.value)}
+    className="flex-1 p-3 rounded-lg bg-[#020617] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+    placeholder="Write a comment..."
+  />
+
+  <button
+    onClick={addComment}
+    className="bg-green-500 px-5 py-2 rounded-lg hover:bg-green-600 transition font-semibold"
+  >
+    Post
+  </button>
+</div>
     </div>
   );
 }

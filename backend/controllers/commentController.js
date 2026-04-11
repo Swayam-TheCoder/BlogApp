@@ -25,7 +25,7 @@ exports.addComment = async (req, res) => {
     });
 
     // ⚡ Populate user (so frontend gets name instantly)
-    const populatedComment = await comment.populate("user", "name");
+    const populatedComment = await comment.populate("user", "name email");
 
     // ⚡ Send response immediately (DON'T WAIT for notification)
     res.status(201).json(populatedComment);
@@ -50,7 +50,7 @@ exports.addComment = async (req, res) => {
 exports.getComments = async (req, res) => {
   try {
     const comments = await Comment.find({ blog: req.params.blogId })
-      .populate("user", "name");
+      .populate("user", "name email");
 
     res.json(comments);
   } catch (error) {
