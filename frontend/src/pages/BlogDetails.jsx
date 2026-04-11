@@ -7,6 +7,7 @@ function BlogDetails() {
   const [blog, setBlog] = useState({});
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
+  const [visibleComments, setVisibleComments] = useState(5);
 
   useEffect(() => {
     API.get(`/blogs/${id}`).then((res) => {
@@ -46,7 +47,7 @@ function BlogDetails() {
 </h2>
 
 <div className="space-y-4 mt-5">
-  {comments.map((c) => (
+  {comments.slice(0, visibleComments).map((c) => (
     <div
       key={c._id}
       className="bg-[#1e293b] p-4 rounded-xl flex gap-3 hover:bg-[#273549] transition"
@@ -73,7 +74,29 @@ function BlogDetails() {
     </div>
   ))}
 </div>
-      {/* ADD COMMENT */}
+
+{/* 👇 ADD HERE (IMPORTANT POSITION) */}
+{comments.length > 5 && (
+  <div className="text-center mt-4">
+    {visibleComments < comments.length ? (
+      <button
+        onClick={() => setVisibleComments((prev) => prev + 10)}
+        className="text-green-400 hover:text-green-300 transition"
+      >
+        See More Comments
+      </button>
+    ) : (
+      <button
+        onClick={() => setVisibleComments(5)}
+        className="text-red-400 hover:text-red-300 transition"
+      >
+        Show Less
+      </button>
+    )}
+  </div>
+)}
+
+{/* ADD COMMENT */}
 <div className="mt-6 flex items-center gap-3">
   <input
     value={text}
