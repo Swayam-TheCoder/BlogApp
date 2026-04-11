@@ -7,29 +7,29 @@ function CreateBlog() {
   const [form, setForm] = useState({ title: "", content: "" });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData();
-  formData.append("title", form.title);
-  formData.append("content", form.content);
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("content", form.content);
 
-  if (file) {
-    formData.append("image", file); // MUST match backend
-  }
+    if (file) {
+      formData.append("image", file); // MUST match backend
+    }
 
-  await API.post("/blogs", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
+    await API.post("/blogs", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-  navigate("/");
-};
-
+    navigate("/");
+  };
 
   return (
     <>
@@ -48,9 +48,7 @@ function CreateBlog() {
           <input
             placeholder="Enter blog title..."
             className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
 
           {/* CONTENT */}
@@ -58,9 +56,7 @@ function CreateBlog() {
             placeholder="Write your content..."
             rows="6"
             className="mb-4 p-3 w-full rounded bg-[#020617] focus:outline-none focus:ring-2 focus:ring-green-500"
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, content: e.target.value })}
           />
 
           {/* IMAGE UPLOAD */}
@@ -74,6 +70,10 @@ function CreateBlog() {
               className="text-sm"
               onChange={(e) => {
                 const selected = e.target.files[0];
+                if (selected && selected.size > 2 * 1024 * 1024) {
+                  setError("File must be less than 2MB");
+                  return;
+                }
                 setFile(selected);
 
                 // preview
@@ -82,6 +82,7 @@ function CreateBlog() {
                 }
               }}
             />
+            {error && <p className="text-red-400 text-sm">{error}</p>}  
           </div>
 
           {/* IMAGE PREVIEW */}
