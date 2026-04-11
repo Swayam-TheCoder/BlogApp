@@ -8,6 +8,7 @@ function BlogDetails() {
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
   const [visibleComments, setVisibleComments] = useState(5);
+  
 
   useEffect(() => {
     API.get(`/blogs/${id}`).then((res) => {

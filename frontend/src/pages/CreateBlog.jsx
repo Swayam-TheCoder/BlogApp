@@ -8,27 +8,34 @@ function CreateBlog() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("content", form.content);
+    try {
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("content", form.content);
 
-    if (file) {
-      formData.append("image", file); // MUST match backend
+      if (file) {
+        formData.append("image", file);
+      }
+
+      await API.post("/blogs", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-
-    await API.post("/blogs", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    navigate("/");
   };
 
   return (
@@ -82,7 +89,7 @@ function CreateBlog() {
                 }
               }}
             />
-            {error && <p className="text-red-400 text-sm">{error}</p>}  
+            {error && <p className="text-red-400 text-sm">{error}</p>}
           </div>
 
           {/* IMAGE PREVIEW */}
@@ -95,8 +102,18 @@ function CreateBlog() {
           )}
 
           {/* BUTTON */}
-          <button className="bg-green-500 w-full py-3 rounded-lg hover:bg-green-600 transition">
-            Publish Blog 🚀
+          <button
+            disabled={loading}
+            className="bg-green-500 w-full py-3 rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Publishing...
+              </span>
+            ) : (
+              "Publish Blog 🚀"
+            )}
           </button>
         </form>
       </div>

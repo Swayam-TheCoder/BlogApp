@@ -8,7 +8,7 @@ function Dashboard() {
 
   const fetchBlogs = async () => {
     const { data } = await API.get("/blogs/my");
-    setBlogs(data);
+    setBlogs(data.blogs);
   };
 
   useEffect(() => {
@@ -28,9 +28,9 @@ function Dashboard() {
           <h2 className="text-2xl text-green-400 font-semibold">My Blogs</h2>
           <Link
             to="/create"
-            className="bg-green-500 px-4 py-2 rounded hover:bg-green-600"
+            className="bg-green-500 px-4 py-2 rounded-3xl hover:bg-green-600"
           >
-            + New Blog
+            Add New Blog
           </Link>
         </div>
 
@@ -40,7 +40,7 @@ function Dashboard() {
           blogs.map((blog) => (
             <div
               key={blog._id}
-              className="bg-[#1e293b] p-4 rounded-xl flex justify-between items-center"
+              className="bg-[#1e293b] p-4 rounded-xl flex justify-between items-center mb-3 hover:bg-[#273549] transition"
             >
               <h3 className="text-lg">{blog.title}</h3>
 

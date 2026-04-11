@@ -27,21 +27,82 @@ exports.createBlog = async (req, res) => {
   }
 };
 
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // GET ALL BLOGS (Public)
 exports.getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find().populate("author", "name email");
-    res.json(blogs);
+    const { search = "", sort = "latest", page = 1 } = req.query;
+    const safeSearch = escapeRegex(search.trim());
+
+    const keyword = search?.trim()
+      ? {
+          $or: [
+            { title: { $regex: `^${safeSearch}`, $options: "i" } },
+            { content: { $regex: safeSearch, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // 🔽 SORT LOGIC
+    const sortOption = sort === "latest" ? { createdAt: -1 } : { createdAt: 1 };
+
+    // 📄 PAGINATION
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const blogs = await Blog.find(keyword)
+      .populate("author", "name email")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      blogs,
+      page,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 // GET USER BLOGS (Private)
 exports.getMyBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find({ author: req.user._id });
-    res.json(blogs);
+    const { search = "", sort = "latest", page = 1 } = req.query;
+
+    // 🔍 SEARCH inside user's blogs
+    const keyword = search
+      ? {
+          $and: [
+            { author: req.user._id },
+            {
+              $or: [
+                { title: { $regex: search, $options: "i" } },
+                { content: { $regex: search, $options: "i" } },
+              ],
+            },
+          ],
+        }
+      : { author: req.user._id };
+
+    // 🔽 SORT
+    const sortOption = sort === "latest" ? { createdAt: -1 } : { createdAt: 1 };
+
+    // 📄 PAGINATION
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    const blogs = await Blog.find(keyword)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      blogs,
+      page,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
