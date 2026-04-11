@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://blogapp-oyg9.onrender.com/api",
+  baseURL: "http://localhost:3000/api", // DEV
 });
 
+// https://blogapp-oyg9.onrender.com/api
 // Attach token automatically
 API.interceptors.request.use((req) => {
   const user = JSON.parse(localStorage.getItem("user"));

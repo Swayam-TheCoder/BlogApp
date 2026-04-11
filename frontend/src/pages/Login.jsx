@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import Input from "../components/Input";
+import Navbar from "../components/Navbar";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -29,7 +30,10 @@ function Login() {
   };
 
   return (
+    <div className="min-h-screen">
+      <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
+      
       <form
         onSubmit={handleSubmit}
         className="bg-[#1e293b] p-8 rounded-2xl w-full max-w-md shadow-lg"
@@ -74,6 +78,7 @@ function Login() {
           </Link>
         </p>
       </form>
+    </div>
     </div>
   );
 }

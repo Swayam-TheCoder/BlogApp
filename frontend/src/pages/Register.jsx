@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
 import Input from "../components/Input";
+import Navbar from "../components/Navbar";
 
 function Register() {
   const [form, setForm] = useState({
@@ -40,6 +41,8 @@ function Register() {
   };
 
   return (
+    <div className="min-h-screen">
+          <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-[#0f172a]">
       <form
         onSubmit={handleSubmit}
@@ -92,6 +95,7 @@ function Register() {
           </Link>
         </p>
       </form>
+    </div>
     </div>
   );
 }
