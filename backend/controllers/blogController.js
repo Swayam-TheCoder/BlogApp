@@ -3,11 +3,16 @@ const Notification = require("../models/notification");
 // CREATE BLOG
 exports.createBlog = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+    console.log("USER:", req.user);
+
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
     const { title, content } = req.body;
 
-    console.log(req.body);
-    console.log(req.file);
-    console.log(req.user);
     const blog = await Blog.create({
       title,
       content,
@@ -17,6 +22,7 @@ exports.createBlog = async (req, res) => {
 
     res.status(201).json(blog);
   } catch (error) {
+    console.error("CREATE BLOG ERROR:", error); // 🔥 IMPORTANT
     res.status(500).json({ message: error.message });
   }
 };
@@ -97,7 +103,7 @@ exports.toggleLike = async (req, res) => {
     }
 
     const alreadyLiked = blog.likes.some(
-      (id) => id.toString() === userId.toString()
+      (id) => id.toString() === userId.toString(),
     );
 
     // ⚡ Use atomic update (FASTER)
@@ -143,14 +149,11 @@ exports.getBlogs = async (req, res) => {
     const limitNum = Number(limit);
 
     // ⚡ Use TEXT SEARCH instead of regex
-    const keyword = search
-      ? { $text: { $search: search } }
-      : {};
+    const keyword = search ? { $text: { $search: search } } : {};
 
     const authorFilter = author ? { author } : {};
 
-    const sortOption =
-      sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+    const sortOption = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
     const blogs = await Blog.find({
       ...keyword,
@@ -178,11 +181,9 @@ exports.getBlogs = async (req, res) => {
   }
 };
 
-
 exports.getSingleBlog = async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id)
-      .populate("author", "name");
+    const blog = await Blog.findById(req.params.id).populate("author", "name");
 
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
