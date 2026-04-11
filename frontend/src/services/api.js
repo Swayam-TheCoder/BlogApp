@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:3000/api", // DEV
+  baseURL: "https://blogapp-oyg9.onrender.com/api", // DEV
 });
 
 // https://blogapp-oyg9.onrender.com/api
